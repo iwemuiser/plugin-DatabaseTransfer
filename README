@@ -1,0 +1,9 @@
+DatabaseTransfer - A MySQL table import plugin for Omeka
+
+I works pretty much the same as the CsvImport plugin. 
+First you have to supply it with login information for the sql database you want to access. 
+After this it is possible to select the table to be imported. 
+The next step is an expanded version of the CsvImport plugin's mapping form. 
+Additionally it is possible to split values by a delimiter character.
+
+The undo function also works.

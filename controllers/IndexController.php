@@ -15,12 +15,12 @@ class DatabaseTransfer_IndexController extends Omeka_Controller_AbstractActionCo
     public function init()
     {
 #		$this = new DatabaseTransfer_IndexController(); // instantiate $object explicitely
-		print "init";
+#		print "init";
 		$this->_log("init: %time%, %memory%");
         $this->sessie = new Zend_Session_Namespace('DatabaseTransfer');
         $this->_helper->db->setDefaultModelName('DatabaseTransfer_Import');
 #        $this->_modelClass = 'DatabaseTransfer_Import'; #no longer supported
-		print "/init";
+#		print "/init";
     }
 
     public function preDispatch() //When is this fired?
@@ -66,7 +66,7 @@ class DatabaseTransfer_IndexController extends Omeka_Controller_AbstractActionCo
 	
     public function indexAction() //this happens when a form is submitted
     {
-		print "indexAction";
+#		print "indexAction";
 		$this->sessie->testvalue = "TEEEEEEEEEEEEEEEEEEEEEEEEXT";
 #		print $this->random_var->sub;
 #		echo "<H1>TEST PRINT 1</H1>";
@@ -121,7 +121,7 @@ class DatabaseTransfer_IndexController extends Omeka_Controller_AbstractActionCo
     }
     
 	public function chooseTableAction(){ //this triggers when the choose-table form button is pushed
-		print "chooseTableAction";
+#		print "chooseTableAction";
 		$this->_log("chooseTableAction: %time%, %memory%");
         require_once DATABASE_TRANSFER_DIRECTORY . '/forms/ChooseTable.php';
         $form = new DatabaseTransfer_Form_ChooseTable(array(
@@ -135,7 +135,7 @@ class DatabaseTransfer_IndexController extends Omeka_Controller_AbstractActionCo
         if (!$this->getRequest()->isPost()) { #returns with certainty in Omeka 2.0
             return;
         }
-		print "<PRE>";
+#		print "<PRE>";
 		//fetch a bunch of variables and check if ok before going to the next step
 		// Anything printed/echoed below this line is not showed
 		$this->sessie->tableId = $form->getValue('table_id');
@@ -144,14 +144,14 @@ class DatabaseTransfer_IndexController extends Omeka_Controller_AbstractActionCo
 
 		$this->sessie->columnNames = $table->getColumnNames();
 		$this->sessie->columnExamples = $table->getColumnExampleAsArray();
-		print "/chooseTableAction";		
+#		print "/chooseTableAction";		
 #		exit(0);
 		$this->_helper->redirector->goto('map-columns'); //redirect if everything is valid
 	}
 
     public function mapColumnsAction(){
-		print "<PRE>mapColumnsAction";
-		print_r($this->sessie);
+#		print "<PRE>mapColumnsAction";
+#		print_r($this->sessie);
 		$this->_log("mapColumnsAction: %time%, %memory%");
 		$this->_sessionIsValid();
         if (!$this->_sessionIsValid()) { //check if all the necessary variables have a value
@@ -161,7 +161,7 @@ class DatabaseTransfer_IndexController extends Omeka_Controller_AbstractActionCo
 	        
 #            return $this->_helper->redirector->goto('index');
         }
-		print_r($this->sessie->dbTable);
+#		print_r($this->sessie->dbTable);
         require_once DATABASE_TRANSFER_DIRECTORY . '/forms/Mapping.php';
         $form = new DatabaseTransfer_Form_Mapping(array(
             'itemTypeId' => $this->sessie->itemTypeId,
@@ -189,15 +189,15 @@ class DatabaseTransfer_IndexController extends Omeka_Controller_AbstractActionCo
 #                . 'element, file, or tag.');
         }
 		
-		print "trying to create DatabaseTransfer_import";
+#		print "trying to create DatabaseTransfer_import";
 		
 #		$this->_log("attempting to create new DatabaseTransfer_Import: %time%, %memory%");
         $databaseTransfer = new DatabaseTransfer_Import(); //this is an omeka record that keeps track of the progress and imports the new item
-		print "DatabaseTransfer_import instance created";
+#		print "DatabaseTransfer_import instance created";
 		
 		$databaseTransfer->setDbTable($this->sessie->dbTable);
 #		$this->_log("new DatabaseTransfer_Import loaded: %time%, %memory%");
-		print "dbTable set<br>";
+#		print "dbTable set<br>";
 		//a loop to transfer session variables to the DatabaseTransfer_Import class
         foreach ($this->sessie->getIterator() as $key => $value) { 
             $setMethod = 'set' . ucwords($key);
@@ -205,19 +205,19 @@ class DatabaseTransfer_IndexController extends Omeka_Controller_AbstractActionCo
                 $databaseTransfer->$setMethod($value);
             }
         }
-		print "session variables transferred<br>";
+#		print "session variables transferred<br>";
         $databaseTransfer->setColumnMaps($columnMaps);
         $databaseTransfer->setStatus(DatabaseTransfer_Import::QUEUED); //setting the status to QUEUED
 #        $databaseTransfer->forceSave(); //saving status of import in database.
         $databaseTransfer->save(); //saving status of import in database.
-		print "status saved (works)<br>";
+#		print "status saved (works)<br>";
 		
         $dbConfig = $this->_getPluginConfig();
 
         $jobDispatcher = Zend_Registry::get('job_dispatcher');		//get Omeka job dispatcher
-		print "job dispatcher instantiated<br>";
+#		print "job dispatcher instantiated<br>";
         $jobDispatcher->setQueueName('imports');					//give a que name
-		print "sending task<br>";
+#		print "sending task<br>";
         $jobDispatcher->send('DatabaseTransfer_ImportTask',
 				array(
 	                'importId' => $databaseTransfer->id,
@@ -225,7 +225,7 @@ class DatabaseTransfer_IndexController extends Omeka_Controller_AbstractActionCo
 	                'batchSize' => @$dbConfig['batchSize'],
 	            )
 		);
-		print "task sent<br>";
+#		print "task sent<br>";
         $this->sessie->unsetAll();
 		$this->_helper->flashMessenger("Successfully started the import. Reload this page for status updates.", 'success');
 #        $this->flashSuccess('Successfully started the import. Reload this page for status updates.');
